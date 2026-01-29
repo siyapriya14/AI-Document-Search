@@ -7,7 +7,7 @@ Users can upload PDF documents and ask questions based on their content.
 ---
 
 ## 🚀 Features
-- Upload PDF documents dynamically
+- Supports multiple PDF uploads simultaneously
 - Ask questions from uploaded documents
 - Uses RAG architecture for accurate answers
 - Built with Streamlit for UI
