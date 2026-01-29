@@ -2,7 +2,7 @@ import streamlit as st
 import tempfile
 import os
 
-from langchain.document_loaders import PyPDFLoader, TextLoader
+from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from rag_pipeline import get_answer_from_docs
 
 st.title("AI Document Search using RAG")
