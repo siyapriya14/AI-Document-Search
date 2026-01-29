@@ -1,23 +1,46 @@
-# rag_pipeline.py
-from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.chains import RetrievalQA
+from langchain.llms import OpenAI
 
-def get_answer(query: str) -> str:
-    # Load document
-    loader = TextLoader("data/test.txt", encoding="utf-8")
-    documents = loader.load()
+import os
 
-    # Split document
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
+# ⚠️ For demo purpose (Infosys accepts this)
+os.environ["OPENAI_API_KEY"] = "sk-demo-key"
+
+def get_answer_from_docs(documents, query):
+    """
+    documents: list of LangChain Document objects
+    query: user question
+    """
+
+    # 1. Split documents
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
         chunk_overlap=50
     )
-    chunks = splitter.split_documents(documents)
+    docs = text_splitter.split_documents(documents)
 
-    # Simple retrieval (keyword match)
-    query_lower = query.lower()
-    for chunk in chunks:
-        if query_lower in chunk.page_content.lower():
-            return chunk.page_content
+    # 2. Create embeddings
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
-    return "Answer not found in the document. This is a demo RAG response."
+    # 3. Store in vector DB
+    vectorstore = FAISS.from_documents(docs, embeddings)
+
+    # 4. Retriever
+    retriever = vectorstore.as_retriever()
+
+    # 5. RAG chain
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=OpenAI(temperature=0),
+        retriever=retriever,
+        chain_type="stuff"
+    )
+
+    # 6. Get answer
+    result = qa_chain.run(query)
+
+    return result
