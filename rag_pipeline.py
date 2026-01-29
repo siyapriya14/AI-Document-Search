@@ -1,27 +1,56 @@
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import Ollama
+from langchain.chains import RetrievalQA
+from langchain.llms.base import LLM
 
-def get_answer_from_docs(query, pdf_path):
-    loader = PyPDFLoader(pdf_path)
-    documents = loader.load()
+import tempfile
+import os
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    docs = splitter.split_documents(documents)
+# Dummy LLM (academic demo – avoids Ollama / API dependency)
+class SimpleLLM(LLM):
+    @property
+    def _llm_type(self):
+        return "simple-llm"
+
+    def _call(self, prompt, stop=None):
+        return "This is a demo RAG response generated from the uploaded documents."
+
+def get_answer_from_docs(query, uploaded_files):
+    documents = []
+
+    for file in uploaded_files:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(file.read())
+            tmp_path = tmp.name
+
+        loader = PyPDFLoader(tmp_path)
+        documents.extend(loader.load())
+
+        os.remove(tmp_path)
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50
+    )
+    splits = text_splitter.split_documents(documents)
 
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    db = FAISS.from_documents(docs, embeddings)
-    retriever = db.as_retriever()
-    relevant_docs = retriever.get_relevant_documents(query)
+    vectorstore = FAISS.from_documents(splits, embeddings)
 
-    context = "\n".join([doc.page_content for doc in relevant_docs])
+    retriever = vectorstore.as_retriever()
 
-    llm = Ollama(model="llama2")
-    prompt = f"Answer the question using the context below:\n\n{context}\n\nQuestion: {query}"
+    llm = SimpleLLM()
 
-    return llm.invoke(prompt)
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        return_source_documents=False
+    )
+
+    result = qa_chain.run(query)
+    return result
