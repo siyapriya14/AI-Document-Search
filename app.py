@@ -1,24 +1,29 @@
 import streamlit as st
 from rag_pipeline import get_answer_from_docs
-import os
+
+st.set_page_config(page_title="AI Document Search using RAG", layout="centered")
 
 st.title("AI Document Search using RAG (Demo)")
 
-# Upload file
-uploaded_file = st.file_uploader(
-    "Upload a PDF document",
-    type=["pdf"]
+uploaded_files = st.file_uploader(
+    "Upload PDF document(s)",
+    type=["pdf"],
+    accept_multiple_files=True
 )
 
 query = st.text_input("Ask a question from the document:")
 
-if uploaded_file and query:
-    # Save uploaded file
-    os.makedirs("data", exist_ok=True)
-    file_path = os.path.join("data", uploaded_file.name)
-
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.read())
-
-    answer = get_answer_from_docs(query, file_path)
-    st.success(answer)
+if st.button("Get Answer"):
+    if not uploaded_files:
+        st.warning("Please upload at least one PDF document.")
+    elif not query:
+        st.warning("Please enter a question.")
+    else:
+        with st.spinner("Processing documents and generating answer..."):
+            try:
+                answer = get_answer_from_docs(query, uploaded_files)
+                st.success("Answer:")
+                st.write(answer)
+            except Exception as e:
+                st.error("Something went wrong while processing the documents.")
+                st.exception(e)
