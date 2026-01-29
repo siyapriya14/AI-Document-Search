@@ -2,23 +2,14 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.chains import RetrievalQA
-from langchain.llms.base import LLM
 
 import tempfile
 import os
 
-class SimpleLLM(LLM):
-    @property
-    def _llm_type(self):
-        return "simple-llm"
-
-    def _call(self, prompt, stop=None):
-        return "This is a demo RAG response generated from the uploaded documents."
-
 def get_answer_from_docs(query, uploaded_files):
     documents = []
 
+    # Load PDFs
     for file in uploaded_files:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(file.read())
@@ -28,25 +19,27 @@ def get_answer_from_docs(query, uploaded_files):
         documents.extend(loader.load())
         os.remove(path)
 
+    # Split text
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=500,
         chunk_overlap=50
     )
-
     chunks = splitter.split_documents(documents)
 
+    # Embeddings
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
+    # Vector store
     vectorstore = FAISS.from_documents(chunks, embeddings)
-    retriever = vectorstore.as_retriever()
 
-    llm = SimpleLLM()
+    # Retrieve top docs
+    docs = vectorstore.similarity_search(query, k=3)
 
-    qa = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever
-    )
+    # Simple answer (demo-safe)
+    answer = "Answer generated from uploaded documents:\n\n"
+    for d in docs:
+        answer += d.page_content[:500] + "\n\n"
 
-    return qa.run(query)
+    return answer
