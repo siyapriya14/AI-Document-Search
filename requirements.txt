@@ -2,8 +2,7 @@ streamlit
 langchain
 langchain-community
 faiss-cpu
-docarray
-orjson
+sentence-transformers
 pypdf
-tiktoken
 openai
+tiktoken
