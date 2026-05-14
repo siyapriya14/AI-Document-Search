@@ -1,56 +1,51 @@
-# AI Document Search using RAG
+# AI Document Search System
 
-This project is an AI-powered Document Search application built using
-**Retrieval-Augmented Generation (RAG)**.  
-Users can upload PDF documents and ask questions based on their content.
+## Overview
+An AI-powered document search application built using Python and Streamlit. The system uses Retrieval-Augmented Generation (RAG) techniques to search and retrieve relevant document information efficiently.
 
----
+## Features
+- Upload and search documents
+- AI-powered retrieval
+- Streamlit web interface
+- Fast document querying
+- RAG-based search pipeline
 
-## 🚀 Features
-- Supports multiple PDF uploads simultaneously
-- Ask questions from uploaded documents
-- Uses RAG architecture for accurate answers
-- Built with Streamlit for UI
-- FAISS for vector storage
-- HuggingFace embeddings
-
----
-
-## 🛠️ Tech Stack
+## Tech Stack
 - Python
 - Streamlit
 - LangChain
 - FAISS
-- HuggingFace Sentence Transformers
+- OpenAI API
 
----
+## Project Structure
 
-## 📂 Project Structure
----
+```bash
+app.py
+rag_pipeline.py
+data/
+requirements.txt
+```
 
-## ▶️ How to Run the Project
+## Installation
 
-1. Clone the repository
-2. Install dependencies
-3. Run the streamlit app
+```bash
+git clone https://github.com/siyapriya14/AI-Document-Search.git
+cd AI-Document-Search
+pip install -r requirements.txt
+```
 
----
+## Run the Application
 
-## 📄 How It Works (RAG Flow)
-1. User uploads a PDF document
-2. Document is split into chunks
-3. Embeddings are generated using HuggingFace
-4. FAISS stores vectors
-5. Relevant chunks are retrieved
-6. LLM generates answer from retrieved context
+```bash
+streamlit run app.py
+```
 
----
+## Screenshots
 
-## 🎓 Academic Note
-This project is created for learning and academic demonstration of
-Retrieval-Augmented Generation (RAG).
+(Add screenshots here)
 
----
-
-## 👩‍💻 Author
-**Siya Priya**
+## Future Improvements
+- Multi-document support
+- Better UI
+- Chat history
+- Authentication system
