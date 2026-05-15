@@ -10,6 +10,10 @@ An AI-powered document search application built using Python and Streamlit. The 
 - Fast document querying
 - RAG-based search pipeline
 
+## Live Demo
+
+[Click Here to Use the App](https://ai-document-search-k7rrmuf3bcyegbehqxahyu.streamlit.app/)
+
 ## Tech Stack
 - Python
 - Streamlit
