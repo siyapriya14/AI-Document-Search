@@ -42,7 +42,7 @@ streamlit run app.py
 
 ## Screenshots
 
-(Add screenshots here)
+![Homepage](assets/homepage.png)
 
 ## Future Improvements
 - Multi-document support
