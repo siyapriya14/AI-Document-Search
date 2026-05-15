@@ -42,7 +42,8 @@ streamlit run app.py
 
 ## Screenshots
 
-![Homepage](assets/homepage.png)
+![Homepage](assets/<img width="917" height="382" alt="image" src="https://github.com/user-attachments/assets/0a8323e5-2b89-4e8f-987d-98d7bb0cddb5" />
+)
 
 ## Future Improvements
 - Multi-document support
